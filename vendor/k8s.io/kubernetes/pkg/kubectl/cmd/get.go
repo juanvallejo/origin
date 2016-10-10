@@ -143,6 +143,7 @@ func RunGet(f *cmdutil.Factory, out io.Writer, errOut io.Writer, cmd *cobra.Comm
 			bytesRead, err := stream.Read(buffer)
 			if bytesRead > 0 {
 				fmt.Printf("%s", string(buffer[:bytesRead]))
+				fmt.Fprintf(errOut, "\n")
 			}
 			if err == io.EOF {
 				return nil
