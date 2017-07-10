@@ -1,7 +1,6 @@
 package policy
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -16,7 +15,6 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/util/sets"
-	kapi "k8s.io/kubernetes/pkg/api"
 	kcmdutil "k8s.io/kubernetes/pkg/kubectl/cmd/util"
 	"k8s.io/kubernetes/pkg/printers"
 
@@ -198,17 +196,9 @@ func (o *canIOptions) Run() (bool, error) {
 	return response.Allowed, nil
 }
 
-// SubjectRulesReviewStatusList provides a serializable wrapper
-// for a collection of authorizationapi.PolicyRule
-type SubjectRulesReviewStatusList struct {
-	metav1.TypeMeta
-	metav1.ListMeta
-
-	Items []authorizationapi.PolicyRule `json:"items"`
-}
-
 func (o *canIOptions) listAllPermissions() error {
-	var rulesReviewStatus authorizationapi.SubjectRulesReviewStatus
+	var rulesReviewResult runtime.Object
+	var policyRules []authorizationapi.PolicyRule
 
 	if len(o.User) == 0 && len(o.Groups) == 0 {
 		rulesReview := &authorizationapi.SelfSubjectRulesReview{}
@@ -220,8 +210,9 @@ func (o *canIOptions) listAllPermissions() error {
 		if err != nil {
 			return err
 		}
-		rulesReviewStatus = whatCanIDo.Status
 
+		policyRules = whatCanIDo.Status.Rules
+		rulesReviewResult = whatCanIDo
 	} else {
 		rulesReview := &authorizationapi.SubjectRulesReview{
 			Spec: authorizationapi.SubjectRulesReviewSpec{
@@ -235,35 +226,18 @@ func (o *canIOptions) listAllPermissions() error {
 		if err != nil {
 			return err
 		}
-		rulesReviewStatus = whatCanYouDo.Status
 
+		policyRules = whatCanYouDo.Status.Rules
+		rulesReviewResult = whatCanYouDo
 	}
 
 	if o.Printer != nil {
-		rulesList := SubjectRulesReviewStatusList{
-			TypeMeta: metav1.TypeMeta{
-				Kind:       "List",
-				APIVersion: "v1",
-			},
-		}
-		rulesList.Items = rulesReviewStatus.Rules
-
-		rulesListJSON, err := json.Marshal(rulesList)
-		if err != nil {
-			return err
-		}
-
-		list, err := runtime.Decode(kapi.Codecs.LegacyCodec(), rulesListJSON)
-		if err != nil {
-			return err
-		}
-
-		return o.Printer.PrintObj(list, o.Out)
+		return o.Printer.PrintObj(rulesReviewResult, o.Out)
 	}
 
 	writer := tabwriter.NewWriter(o.Out, tabwriterMinWidth, tabwriterWidth, tabwriterPadding, tabwriterPadChar, tabwriterFlags)
 	fmt.Fprint(writer, describe.PolicyRuleHeadings+"\n")
-	for _, rule := range rulesReviewStatus.Rules {
+	for _, rule := range policyRules {
 		describe.DescribePolicyRule(writer, rule, "")
 
 	}
