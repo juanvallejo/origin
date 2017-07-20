@@ -60,6 +60,8 @@ var (
 	// IsPersonalSubjectAccessReviewColumns contains known custom role extensions
 	IsPersonalSubjectAccessReviewColumns = []string{"NAME"}
 
+	policyRuleColumns = []string{"VERBS", "NON-RESOURCE URLS", "RESOURCE NAMES", "API GROUPS", "RESOURCES"}
+
 	hostSubnetColumns          = []string{"NAME", "HOST", "HOST IP", "SUBNET"}
 	netNamespaceColumns        = []string{"NAME", "NETID"}
 	clusterNetworkColumns      = []string{"NAME", "NETWORK", "HOST SUBNET LENGTH", "SERVICE NETWORK", "PLUGIN NAME"}
@@ -141,6 +143,9 @@ func NewHumanReadablePrinter(encoder runtime.Encoder, decoder runtime.Decoder, p
 	p.Handler(groupColumns, nil, printGroupList)
 
 	p.Handler(IsPersonalSubjectAccessReviewColumns, nil, printIsPersonalSubjectAccessReview)
+
+	p.Handler(policyRuleColumns, nil, printSubjectRulesReview)
+	p.Handler(policyRuleColumns, nil, printSelfSubjectRulesReview)
 
 	p.Handler(hostSubnetColumns, nil, printHostSubnet)
 	p.Handler(hostSubnetColumns, nil, printHostSubnetList)
@@ -246,6 +251,29 @@ func printTemplate(t *templateapi.Template, w io.Writer, opts kprinters.PrintOpt
 	}
 	if err := appendItemLabels(t.Labels, w, opts.ColumnLabels, opts.ShowLabels); err != nil {
 		return err
+	}
+	return nil
+}
+
+func printSubjectRulesReview(rulesReview *authorizationapi.SubjectRulesReview, w io.Writer, opts kprinters.PrintOptions) error {
+	printPolicyRule(rulesReview.Status.Rules, w)
+	return nil
+}
+
+func printSelfSubjectRulesReview(selfSubjectRulesReview *authorizationapi.SelfSubjectRulesReview, w io.Writer, opts kprinters.PrintOptions) error {
+	printPolicyRule(selfSubjectRulesReview.Status.Rules, w)
+	return nil
+}
+
+func printPolicyRule(policyRules []authorizationapi.PolicyRule, w io.Writer) error {
+	for _, rule := range policyRules {
+		fmt.Fprintf(w, "%v\t%v\t%v\t%v\t%v\n",
+			rule.Verbs.List(),
+			rule.NonResourceURLs.List(),
+			rule.ResourceNames.List(),
+			rule.APIGroups,
+			rule.Resources.List(),
+		)
 	}
 	return nil
 }
