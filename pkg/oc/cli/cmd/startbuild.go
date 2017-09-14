@@ -27,12 +27,15 @@ import (
 	"k8s.io/apimachinery/pkg/fields"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
+	"k8s.io/apimachinery/pkg/watch"
 	"k8s.io/apimachinery/third_party/forked/golang/netutil"
 	restclient "k8s.io/client-go/rest"
 	kclientcmd "k8s.io/client-go/tools/clientcmd"
 	kapi "k8s.io/kubernetes/pkg/api"
 	"k8s.io/kubernetes/pkg/kubectl/cmd/templates"
 	kcmdutil "k8s.io/kubernetes/pkg/kubectl/cmd/util"
+
+	"reflect"
 
 	buildapi "github.com/openshift/origin/pkg/build/apis/build"
 	buildapiv1 "github.com/openshift/origin/pkg/build/apis/build/v1"
@@ -404,18 +407,33 @@ func (o *StartBuildOptions) Run() error {
 			Follow: true,
 			NoWait: false,
 		}
+
+		var (
+			maxLogFetchRetries   = 100
+			logFetchRetriesCount = 0
+			err                  error
+			rd                   io.ReadCloser
+		)
+		defer func(rd io.ReadCloser) {
+			if rd != nil {
+				rd.Close()
+			}
+		}(rd)
+
 		for {
-			rd, err := o.Client.BuildLogs(o.Namespace).Get(newBuild.Name, opts).Stream()
+			rd, err = o.Client.BuildLogs(o.Namespace).Get(newBuild.Name, opts).Stream()
 			if err != nil {
 				// retry the connection to build logs when we hit the timeout.
 				if oerrors.IsTimeoutErr(err) {
-					fmt.Fprintf(o.ErrOut, "timed out getting logs, retrying\n")
-					continue
+					if logFetchRetriesCount < maxLogFetchRetries {
+						logFetchRetriesCount++
+						fmt.Fprintf(o.ErrOut, "timed out getting logs, retrying (try %v out of %v)\n", logFetchRetriesCount, maxLogFetchRetries)
+						continue
+					}
 				}
 				fmt.Fprintf(o.ErrOut, "error getting logs (%v), waiting for build to complete\n", err)
 				break
 			}
-			defer rd.Close()
 			if _, err = io.Copy(o.Out, rd); err != nil {
 				fmt.Fprintf(o.ErrOut, "error streaming logs (%v), waiting for build to complete\n", err)
 			}
@@ -834,6 +852,14 @@ func WaitForBuildComplete(c osclient.BuildInterface, name string) error {
 			b.Status.Phase == buildapi.BuildPhaseCancelled ||
 			b.Status.Phase == buildapi.BuildPhaseError
 	}
+
+	var w watch.Interface
+	defer func(w watch.Interface) {
+		if w != nil {
+			w.Stop()
+		}
+	}(w)
+
 	for {
 		list, err := c.List(metav1.ListOptions{FieldSelector: fields.Set{"name": name}.AsSelector().String()})
 		if err != nil {
@@ -849,11 +875,10 @@ func WaitForBuildComplete(c osclient.BuildInterface, name string) error {
 		}
 
 		rv := list.ResourceVersion
-		w, err := c.Watch(metav1.ListOptions{FieldSelector: fields.Set{"name": name}.AsSelector().String(), ResourceVersion: rv})
+		w, err = c.Watch(metav1.ListOptions{FieldSelector: fields.Set{"name": name}.AsSelector().String(), ResourceVersion: rv})
 		if err != nil {
 			return err
 		}
-		defer w.Stop()
 
 		for {
 			val, ok := <-w.ResultChan()
@@ -868,6 +893,8 @@ func WaitForBuildComplete(c osclient.BuildInterface, name string) error {
 				if name != e.Name || isFailed(e) {
 					return fmt.Errorf("The build %s/%s status is %q", e.Namespace, name, e.Status.Phase)
 				}
+			} else {
+				return fmt.Errorf("Unexpected object type. Expecting *buildapi.Build, but got %v", reflect.TypeOf(val.Object))
 			}
 		}
 	}
