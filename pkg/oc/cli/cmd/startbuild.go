@@ -434,8 +434,21 @@ func (o *StartBuildOptions) Run() error {
 				fmt.Fprintf(o.ErrOut, "error getting logs (%v), waiting for build to complete\n", err)
 				break
 			}
-			if _, err = io.Copy(o.Out, rd); err != nil {
-				fmt.Fprintf(o.ErrOut, "error streaming logs (%v), waiting for build to complete\n", err)
+
+			// read from ReadCloser in chunks of 4096 bytes
+			// and output result to o.Out. Prevents the use
+			// of io.Copy to test potential hangup while
+			// streaming logs.
+			buffer := make([]byte, 4096)
+			for {
+				_, err := rd.Read(buffer)
+				if err == io.EOF {
+					break
+				} else if err != nil {
+					fmt.Fprintf(o.ErrOut, "error streaming logs (%v), waiting for build to complete\n", err)
+				}
+
+				fmt.Fprintf(o.Out, "%s", string(buffer))
 			}
 			break
 		}
