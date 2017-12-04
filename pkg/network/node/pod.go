@@ -33,9 +33,9 @@ import (
 	utilexec "k8s.io/utils/exec"
 
 	"github.com/containernetworking/cni/pkg/invoke"
-	"github.com/containernetworking/cni/pkg/ip"
-	"github.com/containernetworking/cni/pkg/ipam"
-	"github.com/containernetworking/cni/pkg/ns"
+	//"github.com/containernetworking/cni/pkg/ip"
+	//"github.com/containernetworking/cni/pkg/ipam"
+	//"github.com/containernetworking/cni/pkg/ns"
 	cnitypes "github.com/containernetworking/cni/pkg/types"
 	cni020 "github.com/containernetworking/cni/pkg/types/020"
 	cnicurrent "github.com/containernetworking/cni/pkg/types/current"
