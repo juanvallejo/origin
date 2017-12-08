@@ -453,6 +453,7 @@ func (o *EnvOptions) RunEnv(f *clientcmd.Factory) error {
 	if err != nil {
 		return err
 	}
+
 	if len(objects) != len(infos) {
 		return fmt.Errorf("could not convert all objects to API version %q", clientConfig.GroupVersion)
 	}
