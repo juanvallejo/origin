@@ -135,6 +135,26 @@ var ResourcesShortcutStatic = []ResourceShortcuts{
 		ShortForm: schema.GroupResource{Group: "extensions", Resource: "psp"},
 		LongForm:  schema.GroupResource{Group: "extensions", Resource: "podSecurityPolicies"},
 	},
+	{
+		ShortForm: schema.GroupResource{Group: "build.openshift.io", Resource: "bc"},
+		LongForm:  schema.GroupResource{Group: "build.openshift.io", Resource: "buildconfigs"},
+	},
+	{
+		ShortForm: schema.GroupResource{Group: "apps.openshift.io", Resource: "dc"},
+		LongForm:  schema.GroupResource{Group: "apps.openshift.io", Resource: "deploymentconfigs"},
+	},
+	{
+		ShortForm: schema.GroupResource{Group: "image.openshift.io", Resource: "is"},
+		LongForm:  schema.GroupResource{Group: "image.openshift.io", Resource: "imagestreams"},
+	},
+	{
+		ShortForm: schema.GroupResource{Group: "image.openshift.io", Resource: "istag"},
+		LongForm:  schema.GroupResource{Group: "image.openshift.io", Resource: "imagestreamtags"},
+	},
+	{
+		ShortForm: schema.GroupResource{Group: "quota.openshift.io", Resource: "clusterquota"},
+		LongForm:  schema.GroupResource{Group: "quota.openshift.io", Resource: "clusterresourcequota"},
+	},
 }
 
 // ResourceShortFormFor looks up for a short form of resource names.
