@@ -72,6 +72,9 @@ func NewClientAccessFactory(optionalClientConfig kclientcmd.ClientConfig) Client
 		clientConfig:           clientConfig,
 		imageResolutionOptions: &imageResolutionOptions{},
 	}
+
+	fmt.Printf("    |_%v: clientcmd/factory_client_access.go: Creating client access factory (ring0) NewClientAccessFactoryFromDiscovery(flags, clientConfig, discoveryFactory)\n", time.Now().Format("15:14:13.123456"))
+
 	factory.kubeClientAccessFactory = kcmdutil.NewClientAccessFactoryFromDiscovery(
 		flags,
 		clientConfig,

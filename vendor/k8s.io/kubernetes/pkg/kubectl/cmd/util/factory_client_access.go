@@ -53,12 +53,12 @@ import (
 	"k8s.io/client-go/util/homedir"
 	"k8s.io/kubernetes/pkg/api/legacyscheme"
 	"k8s.io/kubernetes/pkg/apis/apps"
+	"k8s.io/kubernetes/pkg/apis/batch"
+	"k8s.io/kubernetes/pkg/apis/core"
 	api "k8s.io/kubernetes/pkg/apis/core"
 	"k8s.io/kubernetes/pkg/apis/extensions"
 	"k8s.io/kubernetes/pkg/client/clientset_generated/internalclientset"
 	"k8s.io/kubernetes/pkg/kubectl"
-	"k8s.io/kubernetes/pkg/apis/core"
-	"k8s.io/kubernetes/pkg/apis/batch"
 	"k8s.io/kubernetes/pkg/kubectl/resource"
 	"k8s.io/kubernetes/pkg/printers"
 	printersinternal "k8s.io/kubernetes/pkg/printers/internalversion"
@@ -87,6 +87,7 @@ func NewClientAccessFactory(optionalClientConfig clientcmd.ClientConfig) ClientA
 func NewClientAccessFactoryFromDiscovery(flags *pflag.FlagSet, clientConfig clientcmd.ClientConfig, discoveryFactory DiscoveryClientFactory) ClientAccessFactory {
 	flags.SetNormalizeFunc(utilflag.WarnWordSepNormalizeFunc) // Warn for "_" flags
 
+	fmt.Printf("        |_obtaining new client cache (NewClientCache(clientConfig, discoveryFactory))\n")
 	clientCache := NewClientCache(clientConfig, discoveryFactory)
 
 	f := &ring0Factory{
@@ -298,7 +299,6 @@ func (f *ring0Factory) UpdatePodSpecForObject(obj runtime.Object, fn func(*v1.Po
 		return false, fmt.Errorf("the object is not a pod or does not have a pod template")
 	}
 }
-
 
 func ConvertExteralPodSpecToInternal(inFn func(*v1.PodSpec) error) func(*core.PodSpec) error {
 	return func(specToMutate *core.PodSpec) error {

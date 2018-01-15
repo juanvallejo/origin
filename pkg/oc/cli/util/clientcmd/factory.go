@@ -56,9 +56,18 @@ var _ kcmdutil.Factory = &Factory{}
 
 // NewFactory creates an object that holds common methods across all OpenShift commands
 func NewFactory(optionalClientConfig kclientcmd.ClientConfig) *Factory {
+	fmt.Printf("    |_%v: instantiating client access factory\n", time.Now().Format("15:14:13.123456"))
+
 	clientAccessFactory := NewClientAccessFactory(optionalClientConfig)
+	fmt.Printf("    |_%v: instantiating client access factory\n", time.Now().Format("15:14:13.123456"))
+
+	fmt.Printf("    |_%v: instantiating object mapping factory\n", time.Now().Format("15:14:13.123456"))
 	objectMappingFactory := NewObjectMappingFactory(clientAccessFactory)
+
+	fmt.Printf("    |_%v: instantiating builder factory\n", time.Now().Format("15:14:13.123456"))
 	builderFactory := kcmdutil.NewBuilderFactory(clientAccessFactory, objectMappingFactory)
+
+	fmt.Printf("    |_%v: returning factory composite\n", time.Now().Format("15:14:13.123456"))
 
 	return &Factory{
 		ClientAccessFactory:  clientAccessFactory,

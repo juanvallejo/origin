@@ -8,6 +8,7 @@ import (
 	"time"
 
 	etcdversion "github.com/coreos/etcd/version"
+	"github.com/golang/glog"
 
 	kapierrors "k8s.io/apimachinery/pkg/api/errors"
 	kubeversiontypes "k8s.io/apimachinery/pkg/version"
@@ -72,6 +73,8 @@ func (o *VersionOptions) Complete(cmd *cobra.Command, f *clientcmd.Factory, out 
 	}
 
 	o.Clients = f.ClientSet
+
+	glog.V(6).Infof("Requesting loaded / parsed kubeconfig...\n")
 	o.ClientConfig = f.OpenShiftClientConfig()
 
 	if !o.IsServer {
