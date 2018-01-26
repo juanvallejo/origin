@@ -17,8 +17,10 @@ limitations under the License.
 package clientcmd
 
 import (
+	"fmt"
 	"io"
 	"sync"
+	"time"
 
 	"github.com/golang/glog"
 
@@ -61,10 +63,13 @@ func NewInteractiveDeferredLoadingClientConfig(loader ClientConfigLoader, overri
 
 func (config *DeferredLoadingClientConfig) createClientConfig() (ClientConfig, error) {
 	if config.clientConfig == nil {
+		fmt.Printf("%v: kubernetes/client/unversioned/clientcmd/merged_client_builder.go: Deferred client configuration has not yet created a client config object. Creating...\n", time.Now().Format("15:14:13.123456"))
+
 		config.loadingLock.Lock()
 		defer config.loadingLock.Unlock()
 
 		if config.clientConfig == nil {
+			fmt.Printf("%v: kubernetes/client/unversioned/clientcmd/merged_client_builder.go: Loading deferred config...\n", time.Now().Format("15:14:13.123456"))
 			mergedConfig, err := config.loader.Load()
 			if err != nil {
 				return nil, err

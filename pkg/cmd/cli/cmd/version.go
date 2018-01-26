@@ -3,6 +3,7 @@ package cmd
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/golang/glog"
 	"io"
 	"strings"
 	"time"
@@ -73,6 +74,8 @@ func (o *VersionOptions) Complete(cmd *cobra.Command, f *clientcmd.Factory, out 
 
 	o.Clients = f.Clients
 	o.ClientConfig = f.OpenShiftClientConfig
+
+	glog.V(6).Infof("Requesting loaded / parsed kubeconfig...\n")
 
 	if !o.IsServer {
 		// retrieve config timeout and set cmd option

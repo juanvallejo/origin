@@ -64,6 +64,8 @@ import (
 // connection behavior. Most commands should use this method to get a factory.
 func New(flags *pflag.FlagSet) *Factory {
 	// TODO: there should be two client configs, one for OpenShift, and one for Kubernetes
+	fmt.Printf("%v: clientcmd/factory.go: about to request DefaultClientConfig.\n", time.Now().Format("15:14:13.123456"))
+
 	clientConfig := DefaultClientConfig(flags)
 	clientConfig = defaultingClientConfig{clientConfig}
 	f := NewFactory(clientConfig)

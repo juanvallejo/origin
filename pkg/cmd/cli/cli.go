@@ -6,6 +6,7 @@ import (
 	"os"
 	"runtime"
 	"strings"
+	"time"
 
 	"github.com/golang/glog"
 	"github.com/spf13/cobra"
@@ -83,6 +84,7 @@ func NewCommandCLI(name, fullName string, in io.Reader, out, errout io.Writer) *
 		BashCompletionFunction: bashCompletionFunc,
 	}
 
+	fmt.Printf("%v: cli.go: About to instantiate cmdutil factory\n", time.Now().Format("15:14:13.123456"))
 	f := clientcmd.New(cmds.PersistentFlags())
 
 	loginCmd := login.NewCmdLogin(fullName, f, in, out)
@@ -201,6 +203,7 @@ func NewCommandCLI(name, fullName string, in io.Reader, out, errout io.Writer) *
 	cmds.AddCommand(experimental)
 
 	if name == fullName {
+		fmt.Printf("%v: cli/cli.go: about to instantiate new \"version\" command.\n", time.Now().Format("15:14:13.123456"))
 		cmds.AddCommand(cmd.NewCmdVersion(fullName, f, out, cmd.VersionOptions{PrintClientFeatures: true}))
 	}
 	cmds.AddCommand(cmd.NewCmdOptions(out))

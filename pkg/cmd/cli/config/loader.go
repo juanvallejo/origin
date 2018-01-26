@@ -1,10 +1,12 @@
 package config
 
 import (
+	"fmt"
 	"os"
 	"path"
 	"path/filepath"
 	"runtime"
+	"time"
 
 	"github.com/spf13/cobra"
 
@@ -28,6 +30,7 @@ var RecommendedHomeFile = path.Join(homedir.HomeDir(), OpenShiftConfigHomeDirFil
 // Any future changes to RecommendedHomeFile and related are expected to add a migration rule here, in order to make
 // sure existing config files are migrated to their new locations properly.
 func currentMigrationRules() map[string]string {
+	fmt.Printf("%v: cli/config/loader.go: About to load default migration rules.\n", time.Now().Format("15:14:13.123456"))
 	oldRecommendedHomeFile := path.Join(homedir.HomeDir(), ".kube/.config")
 	oldRecommendedWindowsHomeFile := path.Join(os.Getenv("HOME"), OpenShiftConfigHomeDirFileName)
 
@@ -35,6 +38,7 @@ func currentMigrationRules() map[string]string {
 	migrationRules[RecommendedHomeFile] = oldRecommendedHomeFile
 	if runtime.GOOS == "windows" {
 		migrationRules[RecommendedHomeFile] = oldRecommendedWindowsHomeFile
+		fmt.Printf("%v: cli/config/loader.go: Loading migration rules from %q.\n", time.Now().Format("15:14:13.123456"), oldRecommendedWindowsHomeFile)
 	}
 	return migrationRules
 }

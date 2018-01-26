@@ -26,6 +26,7 @@ import (
 	"reflect"
 	goruntime "runtime"
 	"strings"
+	"time"
 
 	"github.com/golang/glog"
 	"github.com/imdario/mergo"
@@ -162,6 +163,7 @@ func NewDefaultClientConfigLoadingRules() *ClientConfigLoadingRules {
 // Relative paths inside of the .kubeconfig files are resolved against the .kubeconfig file's parent folder
 // and only absolute file paths are returned.
 func (rules *ClientConfigLoadingRules) Load() (*clientcmdapi.Config, error) {
+	fmt.Printf("%v: kubernetes/client/unversioned/clientcmd/loader.go: About to migrate loading rules...\n", time.Now().Format("15:14:13.123456"))
 	if err := rules.Migrate(); err != nil {
 		return nil, err
 	}
@@ -181,6 +183,8 @@ func (rules *ClientConfigLoadingRules) Load() (*clientcmdapi.Config, error) {
 		kubeConfigFiles = append(kubeConfigFiles, rules.Precedence...)
 	}
 
+	fmt.Printf("%v: kubernetes/client/unversioned/clientcmd/loader.go: About to load configuration from kubeConfigFiles: %v\n", time.Now().Format("15:14:13.123456"), kubeConfigFiles)
+
 	kubeconfigs := []*clientcmdapi.Config{}
 	// read and cache the config files so that we only look at them once
 	for _, filename := range kubeConfigFiles {
@@ -189,6 +193,7 @@ func (rules *ClientConfigLoadingRules) Load() (*clientcmdapi.Config, error) {
 			continue
 		}
 
+		fmt.Printf("%v: kubernetes/client/unversioned/clientcmd/loader.go: Loading from file: %v\n", time.Now().Format("15:14:13.123456"), filename)
 		config, err := LoadFromFile(filename)
 		if os.IsNotExist(err) {
 			// skip missing files
@@ -239,6 +244,7 @@ func (rules *ClientConfigLoadingRules) Migrate() error {
 	}
 
 	for destination, source := range rules.MigrationRules {
+		fmt.Printf("%v: kubernetes/client/unversioned/clientcmd/loader.go: Loading rules for %q from %q...\n", time.Now().Format("15:14:13.123456"), destination, source)
 		if _, err := os.Stat(destination); err == nil {
 			// if the destination already exists, do nothing
 			continue
@@ -262,6 +268,8 @@ func (rules *ClientConfigLoadingRules) Migrate() error {
 			return fmt.Errorf("cannot migrate %v to %v because it is a directory", source, destination)
 		}
 
+		fmt.Printf("%v: kubernetes/client/unversioned/clientcmd/loader.go: Destination %q not present. Attempting to copy source file %q to destination.\n", time.Now().Format("15:14:13.123456"), destination, source)
+
 		in, err := os.Open(source)
 		if err != nil {
 			return err
@@ -273,9 +281,14 @@ func (rules *ClientConfigLoadingRules) Migrate() error {
 		}
 		defer out.Close()
 
+		fmt.Printf("%v: kubernetes/client/unversioned/clientcmd/loader.go: Copying...\n", time.Now().Format("15:14:13.123456"))
+
 		if _, err = io.Copy(out, in); err != nil {
 			return err
 		}
+
+		fmt.Printf("%v: kubernetes/client/unversioned/clientcmd/loader.go: Done copying.\n", time.Now().Format("15:14:13.123456"))
+
 	}
 
 	return nil
@@ -343,6 +356,7 @@ func (rules *ClientConfigLoadingRules) IsDefaultConfig(config *restclient.Config
 
 // LoadFromFile takes a filename and deserializes the contents into Config object
 func LoadFromFile(filename string) (*clientcmdapi.Config, error) {
+	fmt.Printf("%v: kubernetes/client/unversioned/clientcmd/loader.go: Attempting to load config from file %q...\n", time.Now().Format("15:14:13.123456"), filename)
 	kubeconfigBytes, err := ioutil.ReadFile(filename)
 	if err != nil {
 		return nil, err
