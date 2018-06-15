@@ -1,6 +1,7 @@
 package authprune
 
 import (
+	"io/ioutil"
 	"reflect"
 	"testing"
 
@@ -241,8 +242,7 @@ func TestUserReaper(t *testing.T) {
 		securityFake.Fake.PrependReactor("update", "*", kreactor)
 		securityFake.Fake.PrependReactor("delete", "*", kreactor)
 
-		reaper := NewUserReaper(userFake, authFake, oauthFake, securityFake.Security().SecurityContextConstraints())
-		err := reaper.Stop("", test.user, 0, nil)
+		err := reapForUser(userFake, authFake, oauthFake, securityFake.Security().SecurityContextConstraints(), test.user, ioutil.Discard)
 		if err != nil {
 			t.Errorf("%s: unexpected error: %v", test.name, err)
 		}
