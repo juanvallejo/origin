@@ -19,6 +19,7 @@ import (
 	kerrors "k8s.io/apimachinery/pkg/api/errors"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 	"k8s.io/apimachinery/pkg/util/sets"
+	"k8s.io/apimachinery/pkg/util/wait"
 	kubeletapp "k8s.io/kubernetes/cmd/kubelet/app"
 	"k8s.io/kubernetes/pkg/kubectl/cmd/templates"
 	kcmdutil "k8s.io/kubernetes/pkg/kubectl/cmd/util"
@@ -502,7 +503,7 @@ func StartNode(nodeConfig configapi.NodeConfig, components *utilflags.ComponentF
 
 // runKubeletInProcess runs the kubelet command using the provide args
 func runKubeletInProcess(kubeletArgs []string) error {
-	cmd := kubeletapp.NewKubeletCommand()
+	cmd := kubeletapp.NewKubeletCommand(wait.NeverStop)
 	if err := cmd.ParseFlags(kubeletArgs); err != nil {
 		return err
 	}
