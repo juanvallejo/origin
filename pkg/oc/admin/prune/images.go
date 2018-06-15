@@ -193,7 +193,7 @@ func (o *PruneImagesOptions) Complete(f kcmdutil.Factory, cmd *cobra.Command, ar
 	o.Namespace = metav1.NamespaceAll
 	if cmd.Flags().Lookup("namespace").Changed {
 		var err error
-		o.Namespace, _, err = f.DefaultNamespace()
+		o.Namespace, _, err = f.ToRawKubeConfigLoader().Namespace()
 		if err != nil {
 			return err
 		}
@@ -201,7 +201,7 @@ func (o *PruneImagesOptions) Complete(f kcmdutil.Factory, cmd *cobra.Command, ar
 	o.Out = out
 	o.ErrOut = os.Stderr
 
-	clientConfig, err := f.ClientConfig()
+	clientConfig, err := f.ToRESTConfig()
 	if err != nil {
 		return err
 	}
@@ -631,7 +631,7 @@ func (p *describingManifestDeleter) DeleteManifest(registryClient *http.Client, 
 
 // getClients returns a OpenShift client and Kube client.
 func getClients(f kcmdutil.Factory) (appsclient.AppsInterface, buildclient.BuildInterface, imageclient.ImageInterface, kclientset.Interface, error) {
-	clientConfig, err := f.ClientConfig()
+	clientConfig, err := f.ToRESTConfig()
 	if err != nil {
 		return nil, nil, nil, nil, err
 	}
