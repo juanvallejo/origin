@@ -444,7 +444,7 @@ func (o *EnvOptions) RunEnv(f kcmdutil.Factory) error {
 	}
 
 	if len(o.Output) > 0 || o.Local || kcmdutil.GetDryRunFlag(o.Cmd) {
-		return clientcmd.PrintResourceInfos(f, o.Cmd, o.Local, infos, o.Out)
+		return clientcmd.PrintResourceInfos(o.Cmd, infos, o.Out)
 	}
 
 	failed := false
