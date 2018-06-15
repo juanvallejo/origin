@@ -507,8 +507,7 @@ func buildKubeApiserverConfig(
 
 			KubeletClientConfig: *nodeclient.GetKubeletClientConfig(masterConfig),
 
-			EnableLogsSupport:     false, // don't expose server logs
-			EnableCoreControllers: true,
+			EnableLogsSupport: false, // don't expose server logs
 		},
 	}
 
