@@ -1,22 +1,19 @@
 package cli
 
 import (
+	"flag"
 	"fmt"
 	"io"
 	"os"
 	"runtime"
 	"strings"
 
-	"github.com/openshift/origin/pkg/api/legacygroupification"
 	"github.com/spf13/cobra"
 
-	kclientcmd "k8s.io/client-go/tools/clientcmd"
 	kubecmd "k8s.io/kubernetes/pkg/kubectl/cmd"
-	kcmdset "k8s.io/kubernetes/pkg/kubectl/cmd/set"
 	ktemplates "k8s.io/kubernetes/pkg/kubectl/cmd/templates"
 	kcmdutil "k8s.io/kubernetes/pkg/kubectl/cmd/util"
 	"k8s.io/kubernetes/pkg/kubectl/genericclioptions"
-	"k8s.io/kubernetes/pkg/kubectl/genericclioptions/resource"
 
 	"github.com/openshift/origin/pkg/cmd/flagtypes"
 	"github.com/openshift/origin/pkg/cmd/infra/builder"
@@ -97,7 +94,12 @@ func NewCommandCLI(name, fullName string, in io.Reader, out, errout io.Writer) *
 		BashCompletionFunction: bashCompletionFunc,
 	}
 
-	f := clientcmd.New(cmds.PersistentFlags())
+	kubeConfigFlags := genericclioptions.NewConfigFlags()
+	kubeConfigFlags.AddFlags(cmds.Flags())
+	matchVersionKubeConfigFlags := kcmdutil.NewMatchVersionFlags(kubeConfigFlags)
+	matchVersionKubeConfigFlags.AddFlags(cmds.PersistentFlags())
+	cmds.PersistentFlags().AddGoFlagSet(flag.CommandLine)
+	f := kcmdutil.NewFactory(matchVersionKubeConfigFlags)
 
 	loginCmd := login.NewCmdLogin(fullName, f, in, out, errout)
 	secretcmds := secrets.NewCmdSecrets(secrets.SecretsRecommendedName, fullName+" "+secrets.SecretsRecommendedName, f, out, errout)
@@ -319,7 +321,7 @@ func CommandFor(basename string) *cobra.Command {
 
 	switch basename {
 	case "kubectl":
-		cmd = kubecmd.NewKubectlCommand(kcmdutil.NewFactory(nil), in, out, errout)
+		cmd = kubecmd.NewKubectlCommand(in, out, errout)
 	case "openshift-deploy":
 		cmd = deployer.NewCommandDeployer(basename)
 	case "openshift-sti-build":
@@ -339,14 +341,7 @@ func CommandFor(basename string) *cobra.Command {
 	case "openshift-recycle":
 		cmd = recycle.NewCommandRecycle(basename, out)
 	default:
-		// we only need this change for `oc`.  `kubectl` should behave as close to `kubectl` as we can
-		// if we call this factory construction method, we want the openshift style config loading
-		genericclioptions.UseOpenShiftKubeConfigValues = true
-		kclientcmd.ErrEmptyConfig = genericclioptions.NewErrConfigurationMissing()
-		kcmdset.ParseDockerImageReferenceToStringFunc = clientcmd.ParseDockerImageReferenceToStringFunc
-
-		resource.OAPIToGroupified = legacygroupification.OAPIToGroupified
-		kcmdutil.OAPIToGroupifiedGVK = legacygroupification.OAPIToGroupifiedGVK
+		shimKubectlForOc()
 		cmd = NewCommandCLI("oc", "oc", in, out, errout)
 	}
 
