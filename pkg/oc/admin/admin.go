@@ -1,6 +1,7 @@
 package admin
 
 import (
+	"flag"
 	"fmt"
 	"io"
 
@@ -9,6 +10,7 @@ import (
 	kubecmd "k8s.io/kubernetes/pkg/kubectl/cmd"
 	ktemplates "k8s.io/kubernetes/pkg/kubectl/cmd/templates"
 	kcmdutil "k8s.io/kubernetes/pkg/kubectl/cmd/util"
+	"k8s.io/kubernetes/pkg/kubectl/genericclioptions"
 
 	"github.com/openshift/origin/pkg/cmd/server/admin"
 	"github.com/openshift/origin/pkg/cmd/templates"
@@ -32,7 +34,6 @@ import (
 	"github.com/openshift/origin/pkg/oc/admin/router"
 	"github.com/openshift/origin/pkg/oc/admin/top"
 	"github.com/openshift/origin/pkg/oc/cli/cmd"
-	"github.com/openshift/origin/pkg/oc/cli/util/clientcmd"
 	"github.com/openshift/origin/pkg/oc/experimental/buildchain"
 	exipfailover "github.com/openshift/origin/pkg/oc/experimental/ipfailover"
 )
@@ -52,7 +53,12 @@ func NewCommandAdmin(name, fullName string, in io.Reader, out io.Writer, errout 
 		Run:   kcmdutil.DefaultSubCommandRun(out),
 	}
 
-	f := clientcmd.New(cmds.PersistentFlags())
+	kubeConfigFlags := genericclioptions.NewConfigFlags()
+	kubeConfigFlags.AddFlags(cmds.Flags())
+	matchVersionKubeConfigFlags := kcmdutil.NewMatchVersionFlags(kubeConfigFlags)
+	matchVersionKubeConfigFlags.AddFlags(cmds.PersistentFlags())
+	cmds.PersistentFlags().AddGoFlagSet(flag.CommandLine)
+	f := kcmdutil.NewFactory(matchVersionKubeConfigFlags)
 
 	streams := genericclioptions.IOStreams{Out: out, ErrOut: errout}
 
