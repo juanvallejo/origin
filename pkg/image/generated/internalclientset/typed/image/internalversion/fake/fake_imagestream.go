@@ -4,6 +4,7 @@ package fake
 
 import (
 	image "github.com/openshift/origin/pkg/image/apis/image"
+	core_v1 "k8s.io/api/core/v1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	labels "k8s.io/apimachinery/pkg/labels"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
@@ -123,13 +124,13 @@ func (c *FakeImageStreams) Patch(name string, pt types.PatchType, data []byte, s
 	return obj.(*image.ImageStream), err
 }
 
-// Secrets takes label and field selectors, and returns the list of ImageStreams that match those selectors.
-func (c *FakeImageStreams) Secrets(opts v1.ListOptions) (result *image.ImageStreamList, err error) {
+// Secrets takes name of the imageStream, and returns the corresponding secretList object, and an error if there is any.
+func (c *FakeImageStreams) Secrets(imageStreamName string, options v1.GetOptions) (result *core_v1.SecretList, err error) {
 	obj, err := c.Fake.
-		Invokes(testing.NewListAction(imagestreamsResource, imagestreamsKind, c.ns, opts), &image.ImageStreamList{})
+		Invokes(testing.NewGetSubresourceAction(imagestreamsResource, c.ns, "secrets", imageStreamName), &core_v1.SecretList{})
 
 	if obj == nil {
 		return nil, err
 	}
-	return obj.(*image.ImageStreamList), err
+	return obj.(*core_v1.SecretList), err
 }
