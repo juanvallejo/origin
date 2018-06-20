@@ -1,7 +1,6 @@
 package admin
 
 import (
-	"flag"
 	"fmt"
 	"io"
 
@@ -44,7 +43,7 @@ var adminLong = ktemplates.LongDesc(`
 	Commands for managing a cluster are exposed here. Many administrative
 	actions involve interaction with the command-line client as well.`)
 
-func NewCommandAdmin(name, fullName string, in io.Reader, out io.Writer, errout io.Writer) *cobra.Command {
+func NewCommandAdmin(name, fullName string, f kcmdutil.Factory, in io.Reader, out io.Writer, errout io.Writer) *cobra.Command {
 	// Main command
 	cmds := &cobra.Command{
 		Use:   name,
@@ -52,13 +51,6 @@ func NewCommandAdmin(name, fullName string, in io.Reader, out io.Writer, errout 
 		Long:  fmt.Sprintf(adminLong),
 		Run:   kcmdutil.DefaultSubCommandRun(out),
 	}
-
-	kubeConfigFlags := genericclioptions.NewConfigFlags()
-	kubeConfigFlags.AddFlags(cmds.Flags())
-	matchVersionKubeConfigFlags := kcmdutil.NewMatchVersionFlags(kubeConfigFlags)
-	matchVersionKubeConfigFlags.AddFlags(cmds.PersistentFlags())
-	cmds.PersistentFlags().AddGoFlagSet(flag.CommandLine)
-	f := kcmdutil.NewFactory(matchVersionKubeConfigFlags)
 
 	streams := genericclioptions.IOStreams{Out: out, ErrOut: errout}
 

@@ -166,7 +166,7 @@ func NewCommandCLI(name, fullName string, in io.Reader, out, errout io.Writer) *
 		{
 			Message: "Advanced Commands:",
 			Commands: []*cobra.Command{
-				admin.NewCommandAdmin("adm", fullName+" "+"adm", in, out, errout),
+				admin.NewCommandAdmin("adm", fullName+" "+"adm", f, in, out, errout),
 				cmd.NewCmdCreate(fullName, f, out, errout),
 				cmd.NewCmdReplace(fullName, f, out),
 				cmd.NewCmdApply(fullName, f, out, errout),
