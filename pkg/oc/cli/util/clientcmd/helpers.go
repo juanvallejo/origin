@@ -6,7 +6,6 @@ import (
 	"github.com/spf13/cobra"
 
 	corev1 "k8s.io/api/core/v1"
-	utilerrors "k8s.io/apimachinery/pkg/util/errors"
 	"k8s.io/kubernetes/pkg/api/legacyscheme"
 	kapi "k8s.io/kubernetes/pkg/apis/core"
 	kcmdutil "k8s.io/kubernetes/pkg/kubectl/cmd/util"
@@ -22,13 +21,15 @@ func PrintResourceInfos(cmd *cobra.Command, infos []*resource.Info, out io.Write
 	if err != nil {
 		return nil
 	}
-	allErrs := []error{}
-	for i := range infos {
-		if err := printer.PrintObj(kcmdutil.AsDefaultVersionedOrOriginal(infos[i].Object, infos[i].Mapping), out); err != nil {
-			allErrs = append(allErrs, err)
-		}
+	if len(infos) == 1 {
+		return printer.PrintObj(kcmdutil.AsDefaultVersionedOrOriginal(infos[0].Object, infos[0].Mapping), out)
 	}
-	return utilerrors.NewAggregate(allErrs)
+
+	list := &kapi.List{}
+	for i := range infos {
+		list.Items = append(list.Items, infos[i].Object)
+	}
+	return printer.PrintObj(kcmdutil.AsDefaultVersionedOrOriginal(list, nil), out)
 }
 
 func ConvertInteralPodSpecToExternal(inFn func(*kapi.PodSpec) error) func(*corev1.PodSpec) error {
