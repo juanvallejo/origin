@@ -8,6 +8,7 @@ import (
 
 	"github.com/evanphx/json-patch"
 	"github.com/spf13/cobra"
+	"k8s.io/apimachinery/pkg/runtime/schema"
 
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -134,7 +135,7 @@ func (o *PatchOptions) RunPatch() error {
 	}
 	info := infos[0]
 
-	originalObjJS, err := runtime.Encode(configapi.Codecs.LegacyCodec(info.Mapping.GroupVersionKind.GroupVersion()), info.Object.(runtime.Object))
+	originalObjJS, err := runtime.Encode(configapi.Codecs.LegacyCodec(schema.GroupVersion{Version: "v1"}), info.Object.(runtime.Object))
 	if err != nil {
 		return err
 	}
