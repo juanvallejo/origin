@@ -95,7 +95,7 @@ func NewCommandCLI(name, fullName string, in io.Reader, out, errout io.Writer) *
 	}
 
 	kubeConfigFlags := genericclioptions.NewConfigFlags()
-	kubeConfigFlags.AddFlags(cmds.Flags())
+	kubeConfigFlags.AddFlags(cmds.PersistentFlags())
 	matchVersionKubeConfigFlags := kcmdutil.NewMatchVersionFlags(kubeConfigFlags)
 	matchVersionKubeConfigFlags.AddFlags(cmds.PersistentFlags())
 	cmds.PersistentFlags().AddGoFlagSet(flag.CommandLine)
