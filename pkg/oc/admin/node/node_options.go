@@ -92,7 +92,6 @@ func (n *NodeOptions) Complete(f kcmdutil.Factory, c *cobra.Command, args []stri
 		return kcmdutil.PrinterForOptions(kcmdutil.ExtractCmdPrintOptions(c, withNamespace))
 	}
 
-	n.CmdPrinterOutput = true
 	if len(args) != 0 {
 		n.NodeNames = append(n.NodeNames, args...)
 	}
