@@ -128,7 +128,7 @@ func (n *NodeOptions) GetNodes() ([]*kapi.Node, error) {
 	}
 
 	r := n.Builder.
-		WithScheme(legacyscheme.Scheme, legacyscheme.Scheme.PrioritizedVersionsAllGroups()...).
+		WithScheme(legacyscheme.Scheme).
 		ContinueOnError().
 		NamespaceParam(n.DefaultNamespace).
 		LabelSelectorParam(n.Selector).
