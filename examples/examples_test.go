@@ -12,7 +12,6 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/util/yaml"
-	apirequest "k8s.io/apiserver/pkg/endpoints/request"
 	"k8s.io/kubernetes/pkg/api/legacyscheme"
 	kapi "k8s.io/kubernetes/pkg/apis/core"
 	kvalidation "k8s.io/kubernetes/pkg/apis/core/validation"
@@ -31,12 +30,6 @@ import (
 	_ "k8s.io/kubernetes/pkg/apis/core/install"
 	_ "k8s.io/kubernetes/pkg/apis/extensions/install"
 )
-
-type mockService struct{}
-
-func (mockService) ListServices(apirequest.Context) (*kapi.ServiceList, error) {
-	return &kapi.ServiceList{}, nil
-}
 
 func walkJSONFiles(inDir string, fn func(name, path string, data []byte)) error {
 	err := filepath.Walk(inDir, func(path string, info os.FileInfo, err error) error {
