@@ -72,6 +72,7 @@ func (b *Bulk) Run(list *kapi.List, namespace string) []error {
 			groupVersioner := runtime.GroupVersioner(schema.GroupVersions(b.Scheme.PrioritizedVersionsAllGroups()))
 			versionedObj, err := converter.ConvertToVersion(item, groupVersioner)
 			if err != nil {
+				errs = append(errs, err)
 				if after(nil, err) {
 					break
 				}
@@ -80,6 +81,7 @@ func (b *Bulk) Run(list *kapi.List, namespace string) []error {
 			unstructuredObj = &unstructured.Unstructured{}
 			unstructuredObj.Object, err = runtime.DefaultUnstructuredConverter.ToUnstructured(versionedObj)
 			if err != nil {
+				errs = append(errs, err)
 				if after(nil, err) {
 					break
 				}
