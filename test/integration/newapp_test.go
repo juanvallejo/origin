@@ -602,12 +602,7 @@ func TestNewAppRunAll(t *testing.T) {
 						Namespaces: []string{},
 					},
 					TemplateFileSearcher: &app.TemplateFileSearcher{
-						Builder: resource.NewBuilder(&resource.Mapper{
-							RESTMapper:   legacyscheme.Registry.RESTMapper(),
-							ObjectTyper:  legacyscheme.Scheme,
-							ClientMapper: resource.DisabledClientForMapping{},
-							Decoder:      legacyscheme.Codecs.UniversalDecoder(),
-						}, nil, &categories.SimpleCategoryExpander{}),
+						Builder: resource.NewBuilder(nil),
 					},
 					Detector: app.SourceRepositoryEnumerator{
 						Detectors:         source.DefaultDetectors,
