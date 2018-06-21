@@ -15,7 +15,6 @@ import (
 	restclient "k8s.io/client-go/rest"
 	kctrlmgr "k8s.io/kubernetes/cmd/kube-controller-manager/app"
 	kubecontrollerconfig "k8s.io/kubernetes/cmd/kube-controller-manager/app/config"
-	cmapp "k8s.io/kubernetes/cmd/kube-controller-manager/app/options"
 	kapi "k8s.io/kubernetes/pkg/apis/core"
 	kclientset "k8s.io/kubernetes/pkg/client/clientset_generated/internalclientset"
 	"k8s.io/kubernetes/pkg/controller"
@@ -120,10 +119,6 @@ func setupBuildControllerTest(counts controllerCount, t *testing.T) (buildtypedc
 
 	// this test wants to duplicate the controllers, so it needs to duplicate the wiring.
 	// TODO have this simply start the particular controller it wants multiple times
-	controllerManagerOptions, err := cmapp.NewKubeControllerManagerOptions()
-	if err != nil {
-		t.Fatal(err)
-	}
 	rootClientBuilder := controller.SimpleControllerClientBuilder{
 		ClientConfig: clusterAdminClientConfig,
 	}
@@ -145,11 +140,6 @@ func setupBuildControllerTest(counts controllerCount, t *testing.T) (buildtypedc
 		informers.GetSecurityInformers().Start(utilwait.NeverStop)
 	}()
 
-	c := &kubecontrollerconfig.Config{}
-	if err := controllerManagerOptions.ApplyTo(c, "kube-controller-manager-2"); err != nil {
-		t.Fatal(err)
-	}
-
 	controllerContext := kctrlmgr.ControllerContext{
 		ClientBuilder: saClientBuilder,
 		InformerFactory: genericInformers{
@@ -167,7 +157,7 @@ func setupBuildControllerTest(counts controllerCount, t *testing.T) (buildtypedc
 				informers.GetExternalKubeInformers(),
 			},
 		},
-		ComponentConfig:    c.ComponentConfig,
+		ComponentConfig:    kubecontrollerconfig.Config{}.ComponentConfig,
 		AvailableResources: availableResources,
 		Stop:               wait.NeverStop,
 	}
