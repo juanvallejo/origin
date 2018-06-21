@@ -136,13 +136,12 @@ func PrinterForOptions(options *printers.PrintOptions) (printers.ResourcePrinter
 	// TODO or be registered there
 	if humanReadablePrinter, ok := printer.(printers.PrintHandler); ok {
 		printersinternal.AddHandlers(humanReadablePrinter)
+	} else {
+		// wrap the printer in a versioning printer that understands when to convert and when not to convert
+		printer = printers.NewVersionedPrinter(printer, legacyscheme.Scheme, legacyscheme.Scheme, kubectlscheme.Scheme.PrioritizedVersionsAllGroups()...)
 	}
 
 	printer = maybeWrapSortingPrinter(printer, *options)
-
-	// wrap the printer in a versioning printer that understands when to convert and when not to convert
-	printer = printers.NewVersionedPrinter(printer, legacyscheme.Scheme, legacyscheme.Scheme, kubectlscheme.Scheme.PrioritizedVersionsAllGroups()...)
-
 	return printer, nil
 }
 
