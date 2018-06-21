@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/golang/glog"
+	"github.com/openshift/origin/pkg/api/legacy"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -30,6 +31,10 @@ import (
 	_ "k8s.io/kubernetes/pkg/apis/core/install"
 	_ "k8s.io/kubernetes/pkg/apis/extensions/install"
 )
+
+func init() {
+	legacy.LegacyInstallAll(legacyscheme.Scheme)
+}
 
 func walkJSONFiles(inDir string, fn func(name, path string, data []byte)) error {
 	err := filepath.Walk(inDir, func(path string, info os.FileInfo, err error) error {
@@ -157,32 +162,15 @@ func TestExampleObjectSchemas(t *testing.T) {
 }
 
 func validateObject(path string, obj runtime.Object, t *testing.T) {
-	// if an object requires a namespace server side, be sure that it is filled in for validation
-	if validation.HasObjectMeta(obj) {
-		namespaceRequired, err := validation.Validator.GetRequiresNamespace(obj)
-		if err != nil {
-			t.Errorf("Expected no error, Got %v", err)
-			return
-		}
-
-		if namespaceRequired {
-			objectMeta, objectMetaErr := meta.Accessor(obj)
-			if objectMetaErr != nil {
-				t.Errorf("Expected no error, Got %v", objectMetaErr)
-				return
-			}
-
-			objectMeta.SetNamespace(metav1.NamespaceDefault)
-		}
-	}
-
 	switch typedObj := obj.(type) {
 	case *kapi.Pod:
+		typedObj.Namespace = "default"
 		if errors := kvalidation.ValidatePod(typedObj); len(errors) > 0 {
 			t.Errorf("%s did not validate correctly: %v", path, errors)
 		}
 
 	case *kapi.Service:
+		typedObj.Namespace = "default"
 		if errors := kvalidation.ValidateService(typedObj); len(errors) > 0 {
 			t.Errorf("%s did not validate correctly: %v", path, errors)
 		}
@@ -200,6 +188,25 @@ func validateObject(path string, obj runtime.Object, t *testing.T) {
 		}
 
 	default:
+		// if an object requires a namespace server side, be sure that it is filled in for validation
+		if validation.HasObjectMeta(obj) {
+			namespaceRequired, err := validation.Validator.GetRequiresNamespace(obj)
+			if err != nil {
+				t.Errorf("Expected no error, Got %v", err)
+				return
+			}
+
+			if namespaceRequired {
+				objectMeta, objectMetaErr := meta.Accessor(obj)
+				if objectMetaErr != nil {
+					t.Errorf("Expected no error, Got %v", objectMetaErr)
+					return
+				}
+
+				objectMeta.SetNamespace(metav1.NamespaceDefault)
+			}
+		}
+
 		if errors := validation.Validator.Validate(obj); len(errors) > 0 {
 			t.Errorf("%s with %v did not validate correctly: %v", path, reflect.TypeOf(obj), errors)
 		}
