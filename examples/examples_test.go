@@ -166,7 +166,7 @@ func TestExampleObjectSchemas(t *testing.T) {
 func validateObject(path string, obj runtime.Object, t *testing.T) {
 	// if an object requires a namespace server side, be sure that it is filled in for validation
 	if validation.HasObjectMeta(obj) {
-		namespaceRequired, err := validation.GetRequiresNamespace(obj)
+		namespaceRequired, err := validation.Validator.GetRequiresNamespace(obj)
 		if err != nil {
 			t.Errorf("Expected no error, Got %v", err)
 			return
