@@ -1,6 +1,7 @@
 package buildlog
 
 import (
+	"context"
 	"strconv"
 	"strings"
 	"testing"
