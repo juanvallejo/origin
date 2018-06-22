@@ -14,7 +14,6 @@ import (
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
-	"k8s.io/apimachinery/pkg/runtime/schema"
 	kerrors "k8s.io/apimachinery/pkg/util/errors"
 	"k8s.io/apimachinery/pkg/util/sets"
 	"k8s.io/kubernetes/pkg/api/legacyscheme"
@@ -23,7 +22,6 @@ import (
 	"k8s.io/kubernetes/pkg/kubectl/cmd/templates"
 	kcmdutil "k8s.io/kubernetes/pkg/kubectl/cmd/util"
 	"k8s.io/kubernetes/pkg/kubectl/genericclioptions/resource"
-	kprinters "k8s.io/kubernetes/pkg/printers"
 
 	cmdutil "github.com/openshift/origin/pkg/cmd/util"
 	"github.com/openshift/origin/pkg/oc/cli/describe"
@@ -323,17 +321,6 @@ func RunProcess(f kcmdutil.Factory, in io.Reader, out, errout io.Writer, cmd *co
 	if err != nil {
 		return err
 	}
-	var version schema.GroupVersion
-	outputVersionString := kcmdutil.GetFlagString(cmd, "output-version")
-	if len(outputVersionString) > 0 {
-		version, err = schema.ParseGroupVersion(outputVersionString)
-		if err != nil {
-			return err
-		}
-	}
-	// Prefer the Kubernetes core group for the List over the template.openshift.io
-	version.Group = kapi.GroupName
-	p = kprinters.NewVersionedPrinter(p, ocscheme.PrintingInternalScheme, ocscheme.PrintingInternalScheme, version)
 
 	// use generic output
 	if kcmdutil.GetFlagBool(cmd, "raw") {
