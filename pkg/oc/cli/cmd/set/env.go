@@ -334,7 +334,7 @@ func (o *EnvOptions) RunEnv(f kcmdutil.Factory) error {
 	oldObjects := []runtime.Object{}
 	oldData := make([][]byte, len(infos))
 	for i := range infos {
-		oldObjects = append(oldObjects, infos[i].Object.DeepCopyObject())
+		oldObjects = append(oldObjects, kcmdutil.AsDefaultVersionedOrOriginal(infos[i].Object.DeepCopyObject(), nil))
 		old, err := json.Marshal(oldObjects[i])
 		if err != nil {
 			return err
@@ -466,11 +466,11 @@ updates:
 				continue updates
 			}
 		}
-		newData, err := json.Marshal(infos[i].Object)
+		newData, err := json.Marshal(kcmdutil.AsDefaultVersionedOrOriginal(infos[i].Object, nil))
 		if err != nil {
 			return err
 		}
-		patchBytes, err := strategicpatch.CreateTwoWayMergePatch(oldData[i], newData, infos[i].Object)
+		patchBytes, err := strategicpatch.CreateTwoWayMergePatch(oldData[i], newData, kcmdutil.AsDefaultVersionedOrOriginal(infos[i].Object, nil))
 		if err != nil {
 			return err
 		}
