@@ -20,7 +20,7 @@ os::cmd::expect_success_and_text 'oc set env dc --all --containers="node" --env=
 # ensure deleting a var through --env actually deletes the env var
 os::cmd::expect_success_and_not_text "oc get dc/node -o jsonpath='{ .spec.template.spec.containers[?(@.name==\"node\")].env }'" 'name\:key'
 os::cmd::expect_success_and_text "oc get dc/node -o jsonpath='{ .spec.template.spec.containers[?(@.name==\"node\")].env }'" 'name\:dots.in.a.key'
-os::cmd::expect_success_and_text 'oc set env dc --all --containers="node" --env=dots.in.a.key-' 'deploymentconfig "node" updated'
+os::cmd::expect_success_and_text 'oc set env dc --all --containers="node" --env=dots.in.a.key-' 'deploymentconfig.apps.openshift.io "node" updated'
 os::cmd::expect_success_and_not_text "oc get dc/node -o jsonpath='{ .spec.template.spec.containers[?(@.name==\"node\")].env }'" 'name\:dots.in.a.key'
 
 # check that env vars are not split at commas
