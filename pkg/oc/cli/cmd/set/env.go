@@ -433,7 +433,7 @@ func (o *EnvOptions) RunEnv(f kcmdutil.Factory) error {
 		}
 	}
 	if one && skipped == len(infos) {
-		return fmt.Errorf("%s/%s is not a pod or does not have a pod template", infos[0].Mapping.Resource, infos[0].Name)
+		return fmt.Errorf("%s/%s is not a pod or does not have a pod template", infos[0].Mapping.Resource.Resource, infos[0].Name)
 	}
 	if len(errored) == len(infos) {
 		return kcmdutil.ErrExit
