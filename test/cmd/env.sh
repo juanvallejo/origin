@@ -48,7 +48,7 @@ spec:
 # ensure build-config has been created and that its type is "JenkinsPipeline"
 os::cmd::expect_success_and_text "oc get bc fake-pipeline -o jsonpath='{ .spec.strategy.type }'" 'JenkinsPipeline'
 # attempt to set an environment variable
-os::cmd::expect_success_and_text 'oc set env bc/fake-pipeline FOO=BAR' 'buildconfig "fake\-pipeline" updated'
+os::cmd::expect_success_and_text 'oc set env bc/fake-pipeline FOO=BAR' 'buildconfig.build.openshift.io "fake\-pipeline" updated'
 # ensure environment variable was set
 os::cmd::expect_success_and_text "oc get bc fake-pipeline -o jsonpath='{ .spec.strategy.jenkinsPipelineStrategy.env }'" 'name\:FOO'
 os::cmd::expect_success 'oc delete bc fake-pipeline'
