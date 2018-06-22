@@ -355,7 +355,7 @@ func (o *EnvOptions) RunEnv(f kcmdutil.Factory) error {
 					resolveErrors := map[string][]string{}
 					store := envresolve.NewResourceStore()
 
-					fmt.Fprintf(o.Out, "# %s %s, container %s\n", info.Mapping.Resource, info.Name, c.Name)
+					fmt.Fprintf(o.Out, "# %s %s, container %s\n", info.Mapping.Resource.Resource, info.Name, c.Name)
 					for _, env := range c.Env {
 						// Print the simple value
 						if env.ValueFrom == nil {
