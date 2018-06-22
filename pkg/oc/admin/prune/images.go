@@ -759,7 +759,7 @@ func getClients(f kcmdutil.Factory) (appsclient.AppsInterface, buildclient.Build
 
 func getImageClientFactory(f kcmdutil.Factory) func() (imageclient.ImageInterface, error) {
 	return func() (imageclient.ImageInterface, error) {
-		clientConfig, err := f.ClientConfig()
+		clientConfig, err := f.ToRESTConfig()
 		if err != nil {
 			return nil, err
 		}
