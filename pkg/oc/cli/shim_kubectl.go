@@ -24,6 +24,7 @@ func shimKubectlForOc() {
 	editor.UseOpenShiftEditorEnvVars = true
 	resource.OAPIToGroupified = legacygroupification.OAPIToGroupified
 	kcmd.OAPIToGroupifiedGVK = legacygroupification.OAPIToGroupifiedGVK
+	kcmd.UseOpenShiftGenerator = true
 
 	// update polymorphic helpers
 	polymorphichelpers.AttachablePodForObjectFn = originpolymorphichelpers.NewAttachablePodForObjectFn(polymorphichelpers.AttachablePodForObjectFn)
