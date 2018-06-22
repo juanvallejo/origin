@@ -415,7 +415,7 @@ func (o *EnvOptions) RunEnv(f kcmdutil.Factory) error {
 				}
 				*vars = updateEnv(*vars, env, remove)
 				if o.List {
-					fmt.Fprintf(o.Out, "# %s %s\n", info.Mapping.Resource, info.Name)
+					fmt.Fprintf(o.Out, "# %s %s\n", info.Mapping.Resource.Resource, info.Name)
 					for _, env := range *vars {
 						fmt.Fprintf(o.Out, "%s=%s\n", env.Name, env.Value)
 					}
