@@ -10,6 +10,7 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/openshift/origin/pkg/oc/util/ocscheme"
 	"github.com/spf13/cobra"
 	"k8s.io/apimachinery/pkg/api/meta"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -21,7 +22,6 @@ import (
 	kcmdutil "k8s.io/kubernetes/pkg/kubectl/cmd/util"
 	"k8s.io/kubernetes/pkg/kubectl/genericclioptions/resource"
 	"k8s.io/kubernetes/pkg/kubectl/polymorphichelpers"
-	"k8s.io/kubernetes/pkg/kubectl/scheme"
 
 	buildapi "github.com/openshift/origin/pkg/build/apis/build"
 	cmdutil "github.com/openshift/origin/pkg/cmd/util"
@@ -231,7 +231,7 @@ func (o *EnvOptions) RunEnv(f kcmdutil.Factory) error {
 
 	if len(o.From) != 0 {
 		b := f.NewBuilder().
-			WithScheme(scheme.Scheme, scheme.Scheme.PrioritizedVersionsAllGroups()...).
+			WithScheme(ocscheme.ReadingInternalScheme).
 			LocalParam(o.Local).
 			ContinueOnError().
 			NamespaceParam(cmdNamespace).DefaultNamespace().
@@ -295,7 +295,7 @@ func (o *EnvOptions) RunEnv(f kcmdutil.Factory) error {
 	}
 
 	b := f.NewBuilder().
-		WithScheme(scheme.Scheme, scheme.Scheme.PrioritizedVersionsAllGroups()...).
+		WithScheme(ocscheme.ReadingInternalScheme).
 		LocalParam(o.Local).
 		ContinueOnError().
 		NamespaceParam(cmdNamespace).DefaultNamespace().
