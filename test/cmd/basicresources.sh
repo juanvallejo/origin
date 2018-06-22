@@ -249,9 +249,9 @@ os::cmd::expect_success 'oc create -f test/integration/testdata/test-service.jso
 os::cmd::expect_failure 'oc expose service frontend --create-external-load-balancer'
 os::cmd::expect_failure 'oc expose service frontend --port=40 --type=NodePort'
 os::cmd::expect_success 'oc expose service frontend --path=/test'
-os::cmd::expect_success_and_text "oc get route frontend --output-version=v1 --template='{{.spec.path}}'" "/test"
-os::cmd::expect_success_and_text "oc get route frontend --output-version=v1 --template='{{.spec.to.name}}'" "frontend"           # routes to correct service
-os::cmd::expect_success_and_text "oc get route frontend --output-version=v1 --template='{{.spec.port.targetPort}}'" ""
+os::cmd::expect_success_and_text "oc get route.v1.route.openshift.io frontend --template='{{.spec.path}}'" "/test"
+os::cmd::expect_success_and_text "oc get route.v1.route.openshift.io frontend --template='{{.spec.to.name}}'" "frontend"           # routes to correct service
+os::cmd::expect_success_and_text "oc get route.v1.route.openshift.io frontend --template='{{.spec.port.targetPort}}'" ""
 os::cmd::expect_success 'oc delete svc,route -l name=frontend'
 # Test that external services are exposable
 os::cmd::expect_success 'oc create -f test/testdata/external-service.yaml'
