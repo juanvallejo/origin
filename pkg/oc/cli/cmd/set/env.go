@@ -16,6 +16,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/util/strategicpatch"
+	"k8s.io/client-go/dynamic"
 	kapi "k8s.io/kubernetes/pkg/apis/core"
 	kinternalclientset "k8s.io/kubernetes/pkg/client/clientset_generated/internalclientset"
 	"k8s.io/kubernetes/pkg/kubectl/cmd/templates"
@@ -110,6 +111,7 @@ type EnvOptions struct {
 	Cmd *cobra.Command
 
 	Mapper meta.RESTMapper
+	Client dynamic.Interface
 
 	PrintObject func([]*resource.Info) error
 }
@@ -196,6 +198,15 @@ func (o *EnvOptions) Complete(f kcmdutil.Factory, cmd *cobra.Command, args []str
 	o.Cmd = cmd
 
 	o.ShortOutput = kcmdutil.GetFlagString(cmd, "output") == "name"
+
+	clientConfig, err := f.ToRESTConfig()
+	if err != nil {
+		return err
+	}
+	o.Client, err = dynamic.NewForConfig(clientConfig)
+	if err != nil {
+		return err
+	}
 
 	if o.List && len(o.Output) > 0 {
 		return kcmdutil.UsageErrorf(o.Cmd, "--list and --output may not be specified together")
@@ -463,13 +474,13 @@ updates:
 		if err != nil {
 			return err
 		}
-		obj, err := resource.NewHelper(info.Client, info.Mapping).Patch(info.Namespace, info.Name, types.StrategicMergePatchType, patchBytes)
+
+		actualObj, err := o.Client.Resource(info.Mapping.Resource).Namespace(info.Namespace).Patch(info.Name, types.StrategicMergePatchType, patchBytes)
 		if err != nil {
 			handlePodUpdateError(o.Err, err, "environment variables")
 			failed = true
 			continue
 		}
-		info.Refresh(obj, true)
 
 		// make sure arguments to set or replace environment variables are set
 		// before returning a successful message
@@ -477,7 +488,7 @@ updates:
 			return fmt.Errorf("at least one environment variable must be provided")
 		}
 
-		kcmdutil.PrintSuccess(o.ShortOutput, o.Out, info.Object, false, "updated")
+		kcmdutil.PrintSuccess(o.ShortOutput, o.Out, actualObj, false, "updated")
 	}
 	if failed {
 		return kcmdutil.ErrExit
