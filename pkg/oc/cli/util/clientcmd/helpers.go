@@ -27,7 +27,7 @@ func PrintResourceInfos(cmd *cobra.Command, infos []*resource.Info, out io.Write
 
 	list := &kapi.List{}
 	for i := range infos {
-		list.Items = append(list.Items, infos[i].Object)
+		list.Items = append(list.Items, kcmdutil.AsDefaultVersionedOrOriginal(infos[i].Object, nil))
 	}
 	return printer.PrintObj(kcmdutil.AsDefaultVersionedOrOriginal(list, nil), out)
 }
