@@ -950,7 +950,6 @@ var clusterRoleConflicts = sets.NewString(
 
 	// TODO these should be reconsidered
 	"cluster-admin",
-	"system:persistent-volume-provisioner",
 )
 
 // clusterRoleBindingConflicts lists the roles which are known to conflict with upstream and which we have manually
