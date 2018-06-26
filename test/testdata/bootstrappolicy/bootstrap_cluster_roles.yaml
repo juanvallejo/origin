@@ -259,6 +259,14 @@ items:
     - list
     - watch
   - apiGroups:
+    - scheduling.k8s.io
+    resources:
+    - priorityclasses
+    verbs:
+    - get
+    - list
+    - watch
+  - apiGroups:
     - certificates.k8s.io
     resources:
     - certificatesigningrequests
