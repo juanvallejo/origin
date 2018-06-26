@@ -659,19 +659,6 @@ func GetOpenshiftBootstrapClusterRoles() []rbacv1.ClusterRole {
 				authorizationapi.DiscoveryRule,
 			},
 		},
-		{
-			ObjectMeta: metav1.ObjectMeta{
-				Name: PersistentVolumeProvisionerRoleName,
-			},
-			Rules: []rbacv1.PolicyRule{
-				rbacv1helpers.NewRule("get", "list", "watch", "create", "delete").Groups(kapiGroup).Resources("persistentvolumes").RuleOrDie(),
-				// update is needed in addition to read access for setting lock annotations on PVCs
-				rbacv1helpers.NewRule("get", "list", "watch", "update").Groups(kapiGroup).Resources("persistentvolumeclaims").RuleOrDie(),
-				rbacv1helpers.NewRule(read...).Groups(storageGroup).Resources("storageclasses").RuleOrDie(),
-				// Needed for watching provisioning success and failure events
-				rbacv1helpers.NewRule("create", "update", "patch", "list", "watch").Groups(kapiGroup).Resources("events").RuleOrDie(),
-			},
-		},
 
 		{
 			ObjectMeta: metav1.ObjectMeta{
