@@ -236,7 +236,7 @@ function os::util::list_test_packages_under() {
           -o -path "${kubernetes_path}/cmd"                                                         \
           -o -path "${kubernetes_path}/test"                                                        \
           -o -path "${kubernetes_path}/third_party/forked/etcd*"                                    \
-          -o -path '${kubernetes_path}/cluster/gce*' \
+          -o -path "${kubernetes_path}/cluster/gce" \
        \) -prune                                                                                   \
       \) -name '*_test.go' | cut -f 2- -d / | xargs -n1 dirname | sort -u | xargs -n1 printf "${OS_GO_PACKAGE}/vendor/%s\n"
     else
