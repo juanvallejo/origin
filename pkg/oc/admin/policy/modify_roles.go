@@ -609,7 +609,7 @@ func (o *RoleModificationOptions) RemoveRole() error {
 		}
 		var updated runtime.Object
 		if len(o.RoleBindingNamespace) > 0 {
-			updatedBindings := &rbac.RoleBindingList{
+			updatedBindings := &rbacv1.RoleBindingList{
 				TypeMeta: metav1.TypeMeta{
 					Kind:       "List",
 					APIVersion: "v1",
@@ -617,11 +617,11 @@ func (o *RoleModificationOptions) RemoveRole() error {
 				ListMeta: metav1.ListMeta{},
 			}
 			for _, binding := range roleBindings {
-				updatedBindings.Items = append(updatedBindings.Items, *(binding.Object().(*rbac.RoleBinding)))
+				updatedBindings.Items = append(updatedBindings.Items, *(binding.Object().(*rbacv1.RoleBinding)))
 			}
 			updated = updatedBindings
 		} else {
-			updatedBindings := &rbac.ClusterRoleBindingList{
+			updatedBindings := &rbacv1.ClusterRoleBindingList{
 				TypeMeta: metav1.TypeMeta{
 					Kind:       "List",
 					APIVersion: "v1",
@@ -629,7 +629,7 @@ func (o *RoleModificationOptions) RemoveRole() error {
 				ListMeta: metav1.ListMeta{},
 			}
 			for _, binding := range roleBindings {
-				updatedBindings.Items = append(updatedBindings.Items, *(binding.Object().(*rbac.ClusterRoleBinding)))
+				updatedBindings.Items = append(updatedBindings.Items, *(binding.Object().(*rbacv1.ClusterRoleBinding)))
 			}
 			updated = updatedBindings
 		}
@@ -642,7 +642,7 @@ func (o *RoleModificationOptions) RemoveRole() error {
 	}
 
 	for _, roleBinding := range roleBindings {
-		if len(roleBinding.Subjects()) > 0 || roleBinding.Annotation(rbac.AutoUpdateAnnotationKey) == "false" {
+		if len(roleBinding.Subjects()) > 0 || roleBinding.Annotation(rbacv1.AutoUpdateAnnotationKey) == "false" {
 			err = roleBinding.Update()
 		} else {
 			err = roleBinding.Delete()
