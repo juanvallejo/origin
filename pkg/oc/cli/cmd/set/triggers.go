@@ -325,7 +325,7 @@ func (o *TriggersOptions) Run() error {
 		o.updateTriggers(triggers)
 		return nil
 	}
-	patches := CalculatePatches(infos, o.Encoder, func(info *resource.Info) (bool, error) {
+	patches := CalculatePatchesExternal(infos, func(info *resource.Info) (bool, error) {
 		return UpdateTriggersForObject(info.Object, updateTriggerFn)
 	})
 	if singleItemImplied && len(patches) == 0 {

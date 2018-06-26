@@ -254,7 +254,7 @@ func (o *DeploymentHookOptions) Run() error {
 		infos = loaded
 	}
 
-	patches := CalculatePatches(infos, o.Encoder, func(info *resource.Info) (bool, error) {
+	patches := CalculatePatchesExternal(infos, func(info *resource.Info) (bool, error) {
 		dc, ok := info.Object.(*appsapi.DeploymentConfig)
 		if !ok {
 			return false, nil
