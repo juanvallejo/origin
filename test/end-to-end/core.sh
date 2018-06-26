@@ -18,7 +18,7 @@ function wait_for_app() {
 
   os::log::info "Waiting for database service to start"
   os::cmd::try_until_text "oc get -n $1 services" 'database' "$(( 2 * TIME_MIN ))"
-  DB_IP=$(oc get -n "$1" --template="{{ .spec.clusterIP }}" service.v1 database)
+  DB_IP=$(oc get -n "$1" --template="{{ .spec.clusterIP }}" service database)
 
   os::log::info "Waiting for frontend pod to start"
   os::cmd::try_until_text "oc get -n $1 pods -l name=frontend" 'Running' "$(( 2 * TIME_MIN ))"
@@ -26,7 +26,7 @@ function wait_for_app() {
 
   os::log::info "Waiting for frontend service to start"
   os::cmd::try_until_text "oc get -n $1 services" 'frontend' "$(( 2 * TIME_MIN ))"
-  FRONTEND_IP=$(oc get -n "$1" --template="{{ .spec.clusterIP }}" service.v1 frontend)
+  FRONTEND_IP=$(oc get -n "$1" --template="{{ .spec.clusterIP }}" service frontend)
 
   os::log::info "Waiting for database to start..."
   os::cmd::try_until_success "curl --max-time 2 --fail --silent 'http://${DB_IP}:5434'" "$((3*TIME_MIN))"
