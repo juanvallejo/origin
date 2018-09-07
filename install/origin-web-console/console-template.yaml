@@ -65,10 +65,15 @@ objects:
           - mountPath: /var/webconsole-config
             name: webconsole-config
           readinessProbe:
-            httpGet:
-              path: /healthz
-              port: 8443
-              scheme: HTTPS
+            exec:
+              command:
+                - /bin/sh
+                - -c
+                - curl -k -f https://0.0.0.0:8443/healthz
+            failureThreshold: 3
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
           livenessProbe:
             exec:
               command:
